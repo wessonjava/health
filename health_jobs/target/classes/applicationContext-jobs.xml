@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+               http://www.springframework.org/schema/beans/spring-beans.xsd
+               http://www.springframework.org/schema/context
+               http://www.springframework.org/schema/context/spring-context.xsd
+               http://www.springframework.org/schema/aop
+               http://www.springframework.org/schema/aop/spring-aop.xsd
+               http://www.springframework.org/schema/tx
+               http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--任务调度类中的@Autowired失效，解决方案-->
+    <!--<context:annotation-config></context:annotation-config>-->
+    <context:component-scan base-package="com.itheima"></context:component-scan>
+    <!--1：配置自定义job-->
+    <bean id="jobDemo" class="com.itheima.health.job.ClearImgJob"></bean>
+    <!--2：任务描述细节类-->
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="jobDemo"></property>
+        <property name="targetMethod" value="clearImg"></property>
+    </bean>
+    <!--3：定义触发器，定义什么时间去执行任务
+        SimpleTriggerFactoryBean：频率触发器（例如：每隔多长时间执行一次）
+        CronTriggerFactoryBean：通过Cron表达式，指定某个时间点去执行
+            cronExpression：表达式
+                0/10 * * * * ?：表示从0秒开始，每10秒执行一次
+    -->
+    <bean id="trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="jobDetail"></property>
+        <property name="cronExpression" value="0 25 12 * * ?"></property>
+    </bean>
+    <!--4：调度工程，执行触发器-->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="trigger"></ref>
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.health.dao.UserDao">
+
+    <!--使用用户名，查询用户对象，封装用户，封装角色的集合-->
+    <resultMap id="userMap" type="user">
+        <id property="id" column="id"></id>  <!--id不能省略，如果省略id属性会被忽略-->
+        <collection property="roles" column="id"
+                    select="com.itheima.health.dao.RoleDao.findRolesByUserId"></collection>
+    </resultMap>
+    <select id="findUserByUsername" parameterType="string" resultMap="userMap">
+        SELECT * FROM t_user WHERE username = #{username}
+    </select>
+</mapper>
